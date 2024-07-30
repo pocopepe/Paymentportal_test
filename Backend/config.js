@@ -1,2 +1,2 @@
-const JWT="veejuverycool"
-module.exports={JWT}
+const JWT_secret="veejuverycool"
+module.exports={JWT_secret}

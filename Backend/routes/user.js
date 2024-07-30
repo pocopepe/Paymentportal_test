@@ -1,6 +1,8 @@
 const express=require('express');
 const router= express.Router();
 const schema=require('../schemas');
+const jwt=require('jsonwebtoken');
+const JWT_secret=require('../config')
 const zod=require('zod');
 
 schema();
@@ -22,14 +24,15 @@ router.post('/signup', async(req, res)=>{
     const user={"email" :req.body.email , "password": req.body.password, "firstName": req.body.firstName, "lastName": req.body.lastName};
     const result=userSchema.safeParse(req.body);
     const ifExist=await schema.User.findOne({"email": user.email});
+    if(ifExist._id){
+        res.status(400).json({success: false});
+    }
     if(!result.success){
         return(res.status(400).json({success: false, errors: result.error.errors}));
     }
-    if(!ifExist){
-        const toStore=new schema.User(user);
-        schema.User.save().then(()=>{return(res.status(200).json({success: true}))});
-    }
-    res.status(400).json({success: false});
+    const toStore=new schema.User(user);
+    const token=jwt.sign({userId: ifExist._id}, JWT_secret)
+    toStore.save().then(()=>{return(res.status(200).json({success: true, token: token}))});
 })
 
 router.post('/signin', (req, res)=>{
