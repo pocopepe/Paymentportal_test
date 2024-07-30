@@ -4,6 +4,7 @@ const schema=require('../schemas');
 const jwt=require('jsonwebtoken');
 const JWT_secret=require('../config')
 const zod=require('zod');
+const auth=require('../middleware/auth');
 
 schema();
 
@@ -20,8 +21,16 @@ const userSchema=zod.object({
     "lastName": zod.string()
 })
 
+router.put('/', auth, async(req, res)=>{
+    const {success}=updateBody.safeParse(req.body);
+    if(!success){
+        return res.status().json({});
+    }    
+    schema.User.updateOne(req.body,{id:req.userId}).then(()=>{return res.json({success:true, "message": "user updated successfully"})})
+})
+
 router.post('/signup', async(req, res)=>{
-    const user={"email" :req.body.email , "password": req.body.password, "firstName": req.body.firstName, "lastName": req.body.lastName};
+    const user=req.body;
     const result=userSchema.safeParse(req.body);
     const ifExist=await schema.User.findOne({"email": user.email});
     if(ifExist._id){
