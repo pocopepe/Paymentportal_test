@@ -6,8 +6,6 @@ const JWT_secret=require('../config')
 const zod=require('zod');
 const auth=require('../middleware/auth');
 
-schema();
-
 const userSchema=zod.object({
     "email": zod.string().email(),     
     "password": zod.string()
@@ -41,7 +39,10 @@ router.post('/signup', async(req, res)=>{
     }
     const toStore=new schema.User(user);
     const token=jwt.sign({userId: ifExist._id}, JWT_secret)
+    //blessing accounts with random chunks of money for testing purposes only 
+    await Account.create({userId, balence: 1+Math.random()*10000 })
     toStore.save().then(()=>{return(res.status(200).json({success: true, token: token}))});
+
 })
 
 router.post('/signin', (req, res)=>{
