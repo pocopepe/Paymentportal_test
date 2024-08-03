@@ -18,7 +18,7 @@ const auth=(req, res, next)=>{
         }
     }
     catch(err){
-        return res.status(403).json({success:false, "error": "an unforeseen error has taken place, try logging in again"})
+        return res.status(403).json({success:false, "error": "an unforeseen error has taken place, try logging in again"});
     }
 }
 
